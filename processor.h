@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include <regex>
-#include <string>
 #include <iomanip>
 
 #include <systemc.h>
@@ -21,7 +20,6 @@ class processor : public sc_module, tlm::tlm_bw_transport_if<>
     void process();
 
   public:
-
     tlm::tlm_initiator_socket<> iSocket;
 
     processor(sc_module_name,
@@ -122,6 +120,11 @@ void processor::process()
         trans.set_command(read?tlm::TLM_READ_COMMAND:tlm::TLM_WRITE_COMMAND);
         trans.set_data_ptr(data);
         iSocket->b_transport(trans, delay);
+
+        if(trans.get_response_status() == tlm::TLM_ADDRESS_ERROR_RESPONSE)
+        {
+            SC_REPORT_FATAL(this->name(),"ERROR: out of memory bounds!");
+        }
 
         wait(delay);
 
