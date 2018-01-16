@@ -27,7 +27,7 @@ class memory : public sc_module, tlm::tlm_fw_transport_if<>
              return;
         }
 
-        if (trans.get_data_length() != 1)
+        if ((trans.get_data_length() + trans.get_address()) >= size)
         {
              trans.set_response_status( tlm::TLM_BURST_ERROR_RESPONSE );
              return;

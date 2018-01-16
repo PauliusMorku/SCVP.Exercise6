@@ -30,7 +30,8 @@ LIBS += -L$${systemc_home}/lib-$${systemc_target_arch} -lsystemc
 
 SOURCES += main.cpp
 
-HEADERS += memory.h
+HEADERS += memory.h \
+    bus.h
 HEADERS += processor.h
 
 OTHER_FILES += stimuli2.txt
