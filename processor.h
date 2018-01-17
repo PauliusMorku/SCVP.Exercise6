@@ -5,6 +5,7 @@
 #include <iostream>
 #include <regex>
 #include <iomanip>
+#include <tlm_utils/tlm_quantumkeeper.h>
 
 #include <systemc.h>
 #include <tlm.h>
@@ -15,6 +16,7 @@ class processor : public sc_module, tlm::tlm_bw_transport_if<>
   private:
     std::ifstream file;
     sc_time cycleTime;
+    tlm_utils::tlm_quantumkeeper quantumKeeper;
 
     // Method:
     void process();
@@ -57,12 +59,15 @@ processor::processor(sc_module_name,
 
     SC_THREAD(process);
 
+    quantumKeeper.set_global_quantum(sc_time(100,SC_NS)); // STATIC!
+    quantumKeeper.reset();
+
     iSocket.bind(*this);
 }
 
 void processor::process()
 {
-    wait(SC_ZERO_TIME);
+    wait(SC_ZERO_TIME); // Why do we use this?
     std::string line;
     tlm::tlm_generic_payload trans;
     unsigned long long cycles = 0;
@@ -104,16 +109,18 @@ void processor::process()
         }
 
 
-        sc_time delay;
+        sc_time delay = quantumKeeper.get_local_time();
 
-        if(sc_time_stamp() <= cycles * cycleTime)
-        {
-            delay = cycles * cycleTime - sc_time_stamp();
-        }
-        else
-        {
-            delay = sc_time(0, SC_NS);
-        }
+        delay = delay + cycles * cycleTime;
+
+//        if(sc_time_stamp() <= cycles * cycleTime)
+//        {
+//            delay = cycles * cycleTime - sc_time_stamp();
+//        }
+//        else
+//        {
+//            delay = sc_time(0, SC_NS);
+//        }
 
         trans.set_address(address);
         trans.set_data_length(4);
@@ -126,12 +133,22 @@ void processor::process()
             SC_REPORT_FATAL(this->name(),"ERROR: out of memory bounds!");
         }
 
-        wait(delay);
+        if(trans.get_response_status() == tlm::TLM_BURST_ERROR_RESPONSE)
+        {
+            SC_REPORT_FATAL(this->name(),"ERROR: out of memory bounds!");
+        }
+
+        quantumKeeper.set(delay);
+        //quantumKeeper.inc(sc_time(10,SC_NS));
+
+        if (quantumKeeper.need_sync())
+            quantumKeeper.sync();
+
 
         std::cout << std::setfill(' ') << std::setw(4)
                   << name() << " "
                   << std::setfill(' ') << std::setw(10)
-                  << sc_time_stamp() << " "
+                  << quantumKeeper.get_current_time() << " "
                   << std::setfill(' ') << std::setw(5)
                   << (read ? "read" : "write") << " 0x"
                   << std::setfill('0') << std::setw(8)
