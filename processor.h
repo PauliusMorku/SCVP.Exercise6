@@ -139,7 +139,6 @@ void processor::process()
         }
 
         quantumKeeper.set(delay);
-        //quantumKeeper.inc(sc_time(10,SC_NS));
 
         if (quantumKeeper.need_sync())
             quantumKeeper.sync();
