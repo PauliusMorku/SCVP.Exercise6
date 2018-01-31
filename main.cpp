@@ -24,9 +24,13 @@ int sc_main (int __attribute__((unused)) sc_argc,
     bus0.iSocket[1].bind(memory1.tSocket);
 
     std::cout << std::endl << "Name "
-              << std::setfill(' ') << std::setw(10)
-              << "Time" << " "
-              << std::setfill(' ') << std::setw(5)
+              << std::setfill(' ') << std::setw(8)
+              << "TimeSC" << " "
+              << std::setfill(' ') << std::setw(8)
+              << "TimeQKL" << " "
+              << std::setfill(' ') << std::setw(8)
+              << "TimeQKC" << " "
+              << std::setfill(' ') << std::setw(8)
               << "CMD" << "   "
               << std::setfill(' ') << std::setw(8)
               << "Address"
@@ -34,7 +38,7 @@ int sc_main (int __attribute__((unused)) sc_argc,
               << std::setfill(' ') << std::setw(8)
               << "Data"
               << " " << std::endl
-              << "-------------------------------------------"
+              << "--------------------------------------------------------------"
               << std::endl;
 
     sc_start();

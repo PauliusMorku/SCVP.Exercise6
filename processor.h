@@ -108,10 +108,18 @@ void processor::process()
             SC_REPORT_FATAL(name(), "Syntax error in trace");
         }
 
-
         sc_time delay = quantumKeeper.get_local_time();
 
-        delay = delay + cycles * cycleTime;
+        if (quantumKeeper.get_current_time() <= cycles * cycleTime)
+        {
+            // need to wait before next stimuli
+            delay = cycles * cycleTime - sc_time_stamp();
+        }
+        else
+        {
+            // we are late with stimuli, send it as soon as posible
+            delay = sc_time(0, SC_NS);
+        }
 
 //        if(sc_time_stamp() <= cycles * cycleTime)
 //        {
@@ -138,7 +146,9 @@ void processor::process()
             SC_REPORT_FATAL(this->name(),"ERROR: out of memory bounds!");
         }
 
+        //wait(delay);
         quantumKeeper.set(delay);
+        quantumKeeper.inc(sc_time(0, SC_NS)); // No computation time consumed.
 
         if (quantumKeeper.need_sync())
             quantumKeeper.sync();
@@ -146,9 +156,13 @@ void processor::process()
 
         std::cout << std::setfill(' ') << std::setw(4)
                   << name() << " "
-                  << std::setfill(' ') << std::setw(10)
+                  << std::setfill(' ') << std::setw(8)
+                  << sc_time_stamp() << " "
+                  << std::setfill(' ') << std::setw(8)
+                  << quantumKeeper.get_local_time() << " "
+                  << std::setfill(' ') << std::setw(8)
                   << quantumKeeper.get_current_time() << " "
-                  << std::setfill(' ') << std::setw(5)
+                  << std::setfill(' ') << std::setw(8)
                   << (read ? "read" : "write") << " 0x"
                   << std::setfill('0') << std::setw(8)
                   << address

@@ -46,7 +46,7 @@ class memory : public sc_module, tlm::tlm_fw_transport_if<>
                    trans.get_data_length());  // size
         }
 
-        delay = delay + sc_time(20, SC_NS);
+        delay = delay + sc_time(0, SC_NS);
 
         trans.set_response_status( tlm::TLM_OK_RESPONSE );
     }

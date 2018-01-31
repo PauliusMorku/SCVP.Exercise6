@@ -26,7 +26,7 @@ public:
         // I'm to lazy to try to fix it
 
         // Annotate Bus Delay
-        delay = delay + sc_time(40, SC_NS);
+        delay = delay + sc_time(0, SC_NS);
 
         if(trans.get_address() < 512)
         {
